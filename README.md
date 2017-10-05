@@ -1,7 +1,7 @@
 # uhdas_ladcp_terminal
 Modified version of UHDAS ladcp deployment/recovery terminal
 
-#Installing on Ubunutu 16.04
+# Installing on Ubunutu 16.04
 
 
 install six 
