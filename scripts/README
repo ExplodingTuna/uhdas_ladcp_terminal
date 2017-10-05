@@ -1,0 +1,42 @@
+(1) run_lastensq.py
+    - updates gbins
+    - makes another 5-minute average in $procdir/load
+    - plots that 5-minute average to the web site
+
+(2) run_quick.py
+    - uses a quick versionof scan (just to get time range)
+    - SKIPS the averaging step
+    - runs ldcodas with whatever it finds
+    - continues with normal processing
+    - copies matlab files to data dir
+
+(3) run_3dayplots.py
+    - reads the matlab files in the data dir, plots
+        - vector
+        - contour with latitude, longitude, time
+
+
+DAS_while_logging runs these scripts:
+
+
+## per instrument
+
+every N minutes
+for procdir in (wh300, os38bb, os38nb):
+    run_lastensq.py  -d wh300  --update_gbin --averages --plotens
+    run_lastensq.py  -d os38bb --update_gbin --averages --plotens
+    run_lastensq.py  -d os38nb --update_gbin --averages --plotens
+
+
+hourly:
+for procdir in (wh300, os38bb, os38nb):
+    run_quick.py     -d wh300 --stdout run_quick_wh300.stdout
+    run_3dayplots.py -d wh300 --stdout  run_3day_wh300.stdout
+
+
+    run_quick.py     -d os38bb --stdout run_quick_os38bb.stdout
+    run_3dayplots.py -d os38nb --stdout  run_3day_os38bb.stdout
+
+
+    run_quick.py     -d os38nb --stdout run_quick_os38nb.stdout
+    run_3dayplots.py -d os38bb --stdout  run_3day_os38nb.stdout

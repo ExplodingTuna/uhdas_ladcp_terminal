@@ -1,0 +1,69 @@
+
+----------
+see README.txt
+2012-02-14
+All code here was written by Eric Firing, Univ. Hawaii
+----------
+
+
+From the libc info pages:
+-------------------------
+    The MIN and TIME values interact to determine the criterion for when
+ `read' should return; their precise meanings depend on which of them
+ are nonzero.  There are four possible cases:
+
+    * Both TIME and MIN are nonzero.
+
+      In this case, TIME specifies how long to wait after each input
+      character to see if more input arrives.  After the first character
+      received, `read' keeps waiting until either MIN bytes have arrived
+      in all, or TIME elapses with no further input.
+
+      `read' always blocks until the first character arrives, even if
+      TIME elapses first.  `read' can return more than MIN characters if
+      more than MIN happen to be in the queue.
+
+    * Both MIN and TIME are zero.
+
+      In this case, `read' always returns immediately with as many
+      characters as are available in the queue, up to the number
+      requested.  If no input is immediately available, `read' returns a
+      value of zero.
+
+    * MIN is zero but TIME has a nonzero value.
+
+      In this case, `read' waits for time TIME for input to become
+      available; the availability of a single byte is enough to satisfy
+      the read request and cause `read' to return.  When it returns, it
+      returns as many characters as are available, up to the number
+      requested.  If no input is available before the timer expires,
+      `read' returns a value of zero.
+
+    * TIME is zero but MIN has a nonzero value.
+
+      In this case, `read' waits until at least MIN bytes are available
+      in the queue.  At that time, `read' returns as many characters as
+      are available, up to the number requested.  `read' can return more
+      than MIN characters if more than MIN happen to be in the queue.
+---------------------------
+
+
+TIME and MIN are nonzero: block until MIN bytes arrive, or until TIME
+has passed since the *first* byte; so it may block forever,
+unless select has been used to ensure there is at least one
+byte.
+
+TIME and MIN are zero: never block, just grab whatever is
+available and return with it.  This is a pure polling mode.
+
+MIN is zero, TIME is not: block until something is
+available, or TIME has passed, whichever comes first.
+
+TIME is zero, MIN is not: block until at least MIN bytes are
+available.
+
+
+
+
+
+

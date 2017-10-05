@@ -1,0 +1,77 @@
+copy this entire directory to a working location
+edit *.py as appropriate
+=======================================================
+
+    rsync -axl /home/currents/programs/uhdas/serial/writeser ~/
+    cd ~/writeser
+
+
+
+(1) -------- crude test of ascii communication -----
+
+run:  
+
+/home/currents/programs/uhdas/serial/tk_terminal.py &
+# plug in nullmodem cable between ttyS0 and ttyUSB1
+
+# run this
+
+while true
+  do
+    date
+    date > /dev/ttyS0
+    sleep 1
+  done
+
+# manipulate tk_terminal.py to read ttyUSB1 at 9600baud 
+#  and troubleshoot from there.
+  
+
+
+
+(2) -------- binary logging --------------------
+
+EG. female/female  9-pin null-modem cable connects /dev/ttyS0 to /dev/ttyUSB1
+
+
+window 1:    
+
+  export PATH="/home/currents/programs/uhdas/serial:${PATH}"
+  cd /home/currents/programs/q_demos/uhdas/data/raw/nb150
+  python writeser.py -P /dev/ttyS0 -f nbraw *.raw
+
+
+window 2:   
+#  edit logtestbin_nb150.py as appropriate (set serial port)
+
+  
+  cd ~/writeser
+  python logtestbin_nb150.py
+
+
+(3) -------- ascii out one port, in another -----------------
+
+
+EG. female/female  9-pin null-modem cable connects /dev/ttyS1 to /dev/ttyUSB2
+
+window 3:    
+
+
+  line="$GPGGA,235851.00,2117.1530,N,15752.6274,W,1,06,01.2,+00015,M,,M,999,0000*54"
+
+  while 1
+     do
+        echo $line > /dev/ttyS1
+        date
+        sleep 1
+     done
+     
+
+
+window 4:   
+#  edit logtestbin_gga.py as appropriate (set serial port)  
+
+  cd ~/writeser
+  python logtestbin_gga.py
+
+

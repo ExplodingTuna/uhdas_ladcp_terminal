@@ -1,0 +1,7 @@
+Port assignment scheme: blocks of 10, starting with:
+
+38000 ascii messages from ascii serial input
+38010 messages from ser_bin
+38020 speedlog msg broadcast
+38030 autopilot txy broadcast
+

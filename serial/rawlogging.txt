@@ -1,0 +1,69 @@
+2000/12/20 Eric Firing
+
+Quick instructions: use "log_all_raw" to start logging, or
+to restart the control/monitoring windows.  Use the windows
+to stop logging.
+
+Peale is now set up for logging of all raw data streams
+needed for shipboard adcp processing, starting from single
+pings.  The averaging and display routines will be added
+later; for now, the purpose is to test the basic logging,
+and to collect the raw data for postprocessing.
+
+There are 5 data streams being logged, in these directories
+under /mnt/peale1/cruise_data/raw/:
+
+   adcp_pings                raw adcp pings
+   adu2                      Ashtech GGA and ATT messages
+   gyro                      Yokogawa compass messages
+   pcode                     Trimble Pcode GPS
+   sndspd                    soundspeed sensor
+
+In each directory, new files are created every two hours.
+Each filename includes the year, the day, and seconds in the
+day when the file was opened.
+
+All logging can be turned on, monitored, or turned off by
+starting with /usr/local/bin/log_all_raw, which runs 5
+separate python processes.  Each one is similar to the adcp
+ensemble logging process that is started with "logwin".
+Each python process starts a low-level serial logging
+process, if it is not already running; if a process is
+running, python simply connects a graphical display to its
+input and output streams.
+
+Each of the 5 windows is labelled at the top with the type
+of data being logged.
+
+Each graphical display has three buttons.  From left to
+right, they are:
+
+   Start Logging
+   Quit Monitor
+   Stop Logging
+
+Normally you will need to use only Quit Monitor, which
+disconnects and closes the graphical interface, leaving the
+logging process intact.  At the end of a cruise, use Stop
+Logging to stop the underlying process, then Quit Monitor to
+close the window.  Start Logging can be used to resume
+logging if you bumped Stop Logging accidentally, or wanted
+to pause the logging for some reason.  Otherwise it is not
+needed, because the process comes up logging by default.
+
+Running log_all_raw will open windows for any or all of the
+5 data streams.  If a window is already up for a stream, it
+will generate harmless but alarming error messages, but will
+not make a new window for that stream; that is, it will not
+duplicate an existing window.  (The error messages are a
+bug, of course; I am out of debugging time.)
+
+The actual log_all_raw script and the python scripts that it
+calls are in /home/efiring/serial2.  There are symbolic
+links to them in /usr/local/bin, so they can be executed
+from anywhere.  In addition, there is a link in
+/usr/lib/python1.5/site-packages to the file logsubs.py, so
+that it can be found by the "import" statements in the
+python scripts.
+
+

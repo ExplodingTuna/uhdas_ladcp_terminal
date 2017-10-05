@@ -1,0 +1,77 @@
+Modules:
+
+logsubs.py: Building blocks for all logging operations, and
+   UHDAS.
+
+sp_lock.py: a set of simple functions for managing locks on
+   serial ports; should be generalized.
+
+   requires no non-standard modules.
+
+serialport.py: simple routines for setting up, reading from, and
+   writing to serial ports.
+
+   requires sp_lock.py
+
+   main classes are serial_port, which provides a basic port
+   with both stream and file descriptor; writer, which is
+   for sending files, etc.; and terminal, which is a minimal
+   non-gui terminal.  It almost certainly needs to be
+   modified to be useful.
+
+tk_terminal.py: standalone or embeddable terminal.
+
+   requires Tkinter, PMW, tkFileDialog, tkMessageBox
+      threading, Queue
+      serialport
+
+   A separate thread is used for reading from the port; the
+   results are placed on a queue, and an idle task in the
+   mainloop pulls things off the queue.
+
+   class flag_display: view and change port flags
+   class terminal_display(Frame): Frame with text widget
+      includes waitfor function, based on checking the
+      contents of the text widget after a mark
+   class EntryHistory(Entry): an entry line for text to be
+      sent
+   class Tk_terminal(serial_port): main application class,
+      complete with menus, and the ability to save
+      everything to a file.
+      It includes a Frame in which it packs a terminal_display
+      and an EntryHistory, among other things.
+
+sonterm.py: subclass of tk_terminal.py.  Loggers object is
+   optionally registered, in which case start_binary starts
+   the loggers as well, and wakeup stops them.
+
+rditerm.py: subclass of tk_terminal.py.  This is designed mainly
+   for moored and lowered applications of self-contained
+   ADCPs, including both the original BB and the WH
+   instruments.  It automatically determines which type of
+   instrument is connected.
+
+os_term.py: subclass of rditerm.py.  This is for shipboard
+   systems.  It may work with shipboard WH systems; if not,
+   it will be modified or subclassed to do so.
+
+nb_term.py: subclass of tk_terminal.py.  This is for old NB
+   shipboard systems.
+
+ladcp1.py: Controls a single moored or lowered ADCP.  Edit
+   top part to customize.  All normal operations are
+   accessible from the "Deploy" and "Recover" menus.
+
+ladcp2.py: Like ladcp1.py, but controls two instruments
+   simultaneously, via two serial ports.
+
+writeser.py: script for reading from a file and writing to a
+   serial port, for testing data logging.
+
+log_all.py: example script for simply logging from multiple
+   serial ports.
+
+log_P2.py: Updated logging example, customized for P2 on the
+   Melville, summer 2004.
+
+

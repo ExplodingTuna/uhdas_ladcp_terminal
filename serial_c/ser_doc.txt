@@ -1,0 +1,131 @@
+
+----------
+see README.txt
+updated: 2015-05-17
+All code here was written by Eric Firing, Univ. Hawaii
+Additional docs by Julia Hummon, University of Hawaii
+----------
+
+Installation:
+
+ser_asc and ser_bin should be owned by root and the suid
+bit should be set; this allows them to lock memory and use
+realtime scheduling.  They will use their suid root privilege
+only for this purpose, and then drop it.
+
+chmod u+s ser_asc ser_bin
+
+They will write lock files in /var/lock, and they will not
+take advantage of their suid privilege to do so.  Therefore,
+/var/lock needs to be world-writable (or writable by whoever
+is running ser_*), and the serial port also needs to be readable
+and writable by the user.
+
+
+Usage:
+
+ser_asc [options] [string1] [string2] ...
+ser_asc_zmq [options] [string1] [string2] ...
+
+   string1 and string2 are the initial parts
+   of each of up to 10 desired messages.  These initial
+   string segments to be matched can be any length, but will
+   typically be something like "$GPGGA".  The match always
+   starts at the beginning of the string. If no messages are
+   specified, use the "-a" switch to indicate all strings should
+   be logged.
+
+
+
+ser_bin [options]
+ser_bin_zmq [options]
+
+---------------------------------------------------------------
+
+  Options common to ser_asc and ser_bin.
+  --------------------------------------
+   b :  Baud rate, e.g. 9600
+   P :  Port name, e.g. ttyS1.  At present, this must
+        not include the full path, and the path /dev/ is
+        assumed.
+   d :  Directory in which data will be logged.
+   f :  Prefix of filename for data. (E.g., "km" for the
+        Kilo Moana)
+   e :  Extension of data file. (E.g., ".raw" for binary,
+        ".gps" for nmea messages from a gps receiver.)
+   y :  yearbase for file naming
+   m :  /* 0: decimal day; 1: seconds; 2: hhmmss; 3: .jyd */
+        File naming method.  UHDAS standard is 1.
+   M :  Start a new file at integral multiple of this number
+        of minutes.
+   H :  Same, but hours. Include M or H, but not both.
+        UHDAS standard is "-H 2".
+   c :  Require valid checksum for RDI raw (NB, BB, or OS)
+        or for NMEA, if ascii
+
+   F :  Flush each block to disk immediately instead of buffering.
+        This is essential in UHDAS because we are processing
+        the data as it lands in files.
+   T :  long integer argument, unix time: use this time for
+        naming the first file. This is used to synchronize the
+        filenames from the different data streams when starting
+        UHDAS.
+
+   i :  Input pipe name to optionally replace stdin. A single 'X'
+        received via stdin, or this pipe if it is present, stops
+        the process.
+   o :  Output pipe name to optionally replace stdout.
+
+
+  Options specific to ascii files.
+  ---------------------------------
+   s :  skip;  -s 5  means keep every 5th line.
+   a :  Log all lines.  Overrides specific message list;
+        required if no messages are specified.
+   t :  Preceed each line with a time tag message.
+
+    Note: in ser_asc_zmq, the skip value applies only to the
+    lines written to disk, not to the zmq messages.  A value
+    less than or equal to zero will suppress file writing.
+
+  Options specific to ser_asc_zmq and ser_bin_zmq
+  ------------------------------------------------
+   Z :  The zmq url, e.g., "tcp://*:5556"
+
+  Options specific to binary files.
+  ---------------------------------
+   O :  Include this if and only if logging OS, WH, or BB
+        raw data.
+   I :  Initiate pinging.  This gives the command
+        to start pinging; the type of command depends
+        on the instrument, which is OS, WH, or BB if the
+        O option is given, otherwise NB.
+   l :  Write a log file with each data file.
+   E :  Log errors to a "*.err" file.
+
+   B :  Minimum data block size in bytes.  Reject smaller
+        chunks.  Should be needed only if logging via
+        evesdropping on a serial line when the instrument
+        is controlled by VMDAS, or other program that
+        requests each ping.
+   t :  Floating point number; pause in seconds between
+        serial data streams for sequential pings.
+        Default is 0.1 second.
+   v :  cc_vmin  (integer) min number of characters
+        default is 0
+   V :  cc_vtime (integer, 1/10ths of second)
+        inter-character timer (if vmin > 0) or
+        timeout (if vmin = 0)
+        default is 1
+
+   r :  RDI raw (NB, BB, WH, or OS), not ancient DAS ensemble
+        This option is obsolete and no longer needed.
+
+
+Note: you should use one and only one of the -M and -H
+options.  If you use either, the default is equivalent to
+-H2, but it is better to be explicit.
+
+
+
+

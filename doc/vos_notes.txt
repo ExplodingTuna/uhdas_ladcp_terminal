@@ -1,0 +1,170 @@
+=======================================================
+
+How autopilot starts automatically:
+
+
+(1) /etc/rc.local calls ~/scripts/ON_BOOT
+(2) /home/adcp/scripts/ON_BOOT calls (installed version of) uhdas/script/DAS_on_boot.py
+(3) /usr/local/currents/bin/DAS_on_boot.py 
+    - looks for ~/config/autopilot_cfg.py
+    - and that calls DAS_autopilot.py
+
+
+rationale for cascade above:
+(1) - UHDAS install scripts create one rc.local that is always installed
+    - it doesn't change
+    - it calls ~/scripts/ON_BOOT
+(2) ~/scripts/ON_BOOT
+    - as user adcp, easy to get there and see what it is supposed to do
+    - easy to temporarily modify for testing
+    - calls /usr/local/currents/bin/DAS_on_boot.py
+(3) /home/currents/programs/uhdas/scripts/DAS_on_boot.py
+    - managed by Mercurial along with other UHDAS programs
+    - can have all the Python magic
+    - runs as user 'adcp'
+
+=======================================================
+
+other notes:
+
+
+/home/currents/programs/uhdas/scripts/DAS_on_boot.py:
+       -- leaves a file ~/log/env.log   
+       -- explicitly set DISPLAY
+       -- calls DAS_autopilot.py
+       -- redirect output to ~/log/on_boot.log
+
+
+DAS_autopilot.py looks for ~/config/autopilot.py
+        --stop (kill the other one)
+        --query (OK to run while #1 is going)
+        --check_config (chec config/autopilot_cfg.py)
+
+        -> if DAS_autopilot.py finds ~/config/autopilot_cfg.py, 
+           it tries to run, so to disable the automatic startup,
+           ensure that there is no file called ~/config/autopilot_cfg.py
+
+=======================================================
+
+What must be working for autopilot to run:
+
+
+For autopilot to run requires
+    - zmq publisher for positions must be running (started in DAS_on_boot.py)
+         (runs  "zmq_publisher.py --start --quiet")
+         zmq publisher is configured in ~/config/sensor_cfg.py     
+                 - use_publishers=True
+                 - publishers {} points to a port (see file zmq_ports.txt)
+                                  eg:  'pub_addr'  :  'tcp://127.0.0.1:38000',
+
+
+
+    - ADCP in 'sensors' section in sensor_cfg.py must have -Z PORT configured, eg
+                    'opt'  :  '-rlE -c -O -I -Z tcp://127.0.0.1:38010'},
+      This is used for the heartbeat (watchdog for ADCP)                   
+    - /home/adcp/config/autopilot.py is present and correctly configured
+
+     After uhdas_config_gen.py we add the components manually 
+    (TODO - automate this)
+
+    In general, things related to autopilot have "pilot" in the name
+
+    rsync -a $prog/onship/pilot_configs/oleander/config/ ~/config
+          # places in config directory:
+            autopilot_cfg.py
+            pilot_maps/
+                       Oleander1.py               # polygons
+            cmdfiles/
+                       pilot_os75bb_shallow.cmd   # corresponding
+                       pilot_os75bb_shelf.cmd     #    cmdfiles, all
+                       pilot_os75bb_sshelf.cmd    #    must start 
+                       pilot_os75nb_deep.cmd      #    with "pilot_"
+
+    In ~/config:  
+      ./autopilot_cfg.py
+            - DAS_autopilot.py always runs; on_boot publishers also always run
+            - median_window for gps samples, calculating position and speed
+            - check_interval: how often does autopilot look at speed/position?
+            - restart=30: go through the NewCruise route; try to start logging
+                          maybe make this 300sec? or 600sec for production
+
+=======================================================
+
+How to tell if these parts are running:
+
+Don't forget: wait 50sec until checking.  Delayed startup.
+
+(0) must have ~/config/autopilot.py and associated files
+
+
+(1) must have all serial data coming in USB serial ports
+(2) is zmq_publisher running?
+
+      process:     ps -ef | grep zmq
+                   zmq_publisher.py --query
+
+      test output: zmq_monitor.py    tcp://127.0.0.1:38000 #control-c to stop
+
+(3) must have zmq -Z specified in ADCP sensor block
+      
+(4) test if autopilot is running:
+
+    - ps -ef | grep autopilot   # (DAS_autopilot.py should be there)
+    - ls flags
+
+
+===========================================
+
+How to stop/start autopilot and other associated processes
+
+If autpilot is running DO NOT start/stop anything with the GUI!!
+
+- look for process running by
+
+  ls  /home/adcp/flags/PROC.running
+  ps -ef | grep PROC
+
+- stop process by  (do this and wait a little)
+
+  touch /home/adcp/flags/PROC.stop
+
+- to restart:
+
+  screen -r
+  DAS_on_boot.py
+  control-a d
+
+
+
+- other resources (are supposed to work):
+
+NOTE: two programs using "pmw_process" mechanism -- DAS.py and DAS_autopilot.py
+      In common:
+        (1) ~/flags/XXX.running     #indicates the process is running
+        (2) 3 ways to quit the process:
+                1. touch ~/flags/XXX.stop   #and it will stop later
+                2. remove  ~/flags/XXX.running  # will stop later (?) test this
+                3. To fully quit the process:  XXX.py --quit
+        
+DAS_autopilot.py  --stop
+DAS.py            --quit
+zmq_publisher.py  --stop
+
+
+===========================================
+
+
+============================================
+
+speedlog 
+  - uses the same zmq publisher with 'log' lines, as autopilot uses
+       - ADCP in sensor_cfg.py must have -Z PORT configured, eg
+                'opt'  :  '-rlE -c -O -I -Z tcp://127.0.0.1:9876'},
+  - can output on a tcp port and a serial port
+  - must be turned on in uhdas_cfg.py
+
+... but whether it runs or not is irrelevant to autopilot.py
+
+
+
+

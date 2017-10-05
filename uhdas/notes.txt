@@ -1,0 +1,29 @@
+UH DAS structure
+----------------
+
+
+DAS.py contains the entry point to the system, and some
+classes:
+
+   DasAppShell(NBAppShell)  (subclassing NoteBook App Shell)
+
+      builds the notebook, adds the pages
+
+      StartLogging
+         adds standard Sontek commands to the list that
+         comes from sonsetup;
+         calls some sonsetup functions;
+         builds a Translate object and starts it
+         same for *.m file generation
+
+      StopLogging
+         undoes the above
+
+      buildLoggers
+
+      destroyLoggers
+
+      is_logging
+
+
+
