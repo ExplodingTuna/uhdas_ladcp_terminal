@@ -4,12 +4,15 @@
 ### edit this section for your cruise ###
 from __future__ import print_function
 from future import standard_library
+from os.path import expanduser
+
 standard_library.install_hooks()
 font_size = 14                          # try 12, 14, 16, 18, 20
 
 cruiseName = 'AB1705'                   # Cruise name
 
-backup = './rditerm_temp'               # 2nd copy (data and  and logs here)
+
+backup = 'rditerm_backup'               # 2nd copy (data and  and logs here)
 ## backup = ''                          # or set to empty string to disable
 
 device_slave = '/dev/ttyUSB0'              # up-looker: com port
@@ -30,6 +33,19 @@ from uhdas.serial.rditerm import terminal
 import os, sys
 import Pmw
 
+home = expanduser("~")
+logDir = home + '/data/ladp_terminal_logs/'
+directory = os.path.dirname(logDir)
+if not os.path.exists(directory):
+    os.makedirs(directory)
+    
+backup = home + '/backup/'
+directory = os.path.dirname(backup)
+if not os.path.exists(directory):
+    os.makedirs(directory)    
+
+
+
 root = Tk()
 Pmw.initialise(root = root, size=font_size, fontScheme = 'default')
 root.title("Dual LADCP")
@@ -44,6 +60,7 @@ R_slave = terminal(device = device_slave, master = root,
                backup = backup,
                cmd_filename = cmd_filename_slave)
 logfilename = 'rditerm_%s.log' % os.path.split(device_slave)[-1]
+logfilename = logDir + logfilename
 print("Saving terminal IO to %s." % logfilename)
 R_slave.begin_save(logfilename)
 
@@ -57,6 +74,7 @@ R_master = terminal(device = device_master, master = root,
                backup = backup,
                cmd_filename = cmd_filename_master)
 logfilename = 'rditerm_%s.log' % os.path.split(device_master)[-1]
+logfilename = logDir + logfilename
 print("Saving terminal IO to %s." % logfilename)
 R_master.begin_save(logfilename)
 

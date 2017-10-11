@@ -4,6 +4,7 @@ ADCP deployment and recovery.
 '''
 from __future__ import print_function
 from future import standard_library
+from os.path import expanduser
 standard_library.install_hooks()
 
 from six.moves.tkinter import *
@@ -11,13 +12,27 @@ from six.moves import tkinter_tkfiledialog
 from six.moves import tkinter_messagebox
 from six.moves.tkinter_tksimpledialog import askinteger, askstring
 import Pmw
+import sys, os, select, signal
+
+## create log and data directories
+home = expanduser("~")
+logDir = home + '/data/ladp_terminal_logs/'
+dataDir = home + '/data/ladp_proc/raw_ladcp/cut/'
+
+directory = os.path.dirname(logDir)
+if not os.path.exists(directory):
+    os.makedirs(directory)
+
+directory = os.path.dirname(dataDir)
+if not os.path.exists(directory):
+    os.makedirs(directory)    
 
 import logging, logging.handlers
 from uhdas.system import logutils
 L = logging.getLogger()
 L.setLevel(logging.DEBUG)
 formatter = logutils.formatterTLN
-handler = logging.FileHandler("rditerm.log")
+handler = logging.FileHandler(logDir + "rditerm.log")
 handler.setLevel(logging.INFO)
 handler.setFormatter(formatter)
 L.addHandler(handler)
@@ -25,12 +40,15 @@ L.addHandler(handler)
 from uhdas.serial.tk_terminal import Tk_terminal, Timeout
 
 import time, termios
-import sys, os, select, signal
+
 import stat
 import shutil, re
 import tempfile
 from threading import Thread
 import subprocess
+
+
+
 
 
 break_msec = 400
@@ -120,7 +138,6 @@ class terminal(Tk_terminal):
               bg = 'white',
               textvariable = self.stacastSV)
         self.stacastentry.pack()
-
     def add_Loggers(self, Loggers):
         self.Loggers = Loggers
 
@@ -302,6 +319,7 @@ class terminal(Tk_terminal):
         L.info("Data collection started")
         self.insert("Data collection started, %s\n" % time_stamp())
         logfilename = self.make_filename(".log")
+        logfilename = logDir + '/' + logfilename
         self.append_to_file(logfilename)
         self.insert("Deployment logfile written to %s" % logfilename)
         self.stop_listening()
@@ -484,7 +502,7 @@ class terminal(Tk_terminal):
     def ymodem_download(self, filenum = None):
         # filenum is None for all files (WH only); otherwise file number
         #            directory selection; for now it is in current directory
-        self.ymdir = tempfile.mkdtemp(dir='./')
+        self.ymdir = tempfile.mkdtemp(dir=dataDir)
         self.insert("Initial download directory: %s" % self.ymdir)
         dbaud = self.get_data_baud()
         self.change_all_baud(dbaud)
@@ -543,8 +561,11 @@ class terminal(Tk_terminal):
 
     def finish_download(self):
         logfilename = self.make_filename(".log")
+        logfilename = logDir + '/' + logfilename
         fn0 = self.find_filename()
         fn0 = os.path.join(self.ymdir, fn0)
+        #fn0 = dataDir + '/' + fn0        
+
         try:
             os.utime(fn0, None)
             nbytes = os.stat(fn0)[stat.ST_SIZE]
@@ -565,9 +586,10 @@ class terminal(Tk_terminal):
         while fn1 is None:
             fn1 = askstring('Rename', 'Rename %s to:' % fn0,
                     initialvalue = fn)
+                    
             if fn1 is None:
                 break
-            fn1 = fn1.strip()
+            fn1 = dataDir + fn1.strip()
             if os.path.exists(fn1):
                 tkinter_messagebox.showerror(message="File %s already exists" % fn1)
                 fn1 = None
@@ -734,6 +756,7 @@ def main():
                    datafile_ext = o.datafile_ext,
                    cmd_filename = o.cmd_filename)
     logfilename = 'rditerm_%s.log' % os.path.split(o.device)[-1]
+    logfilename = logDir + logfilename
     print("Saving terminal IO to %s." % logfilename)
     R.begin_save(logfilename)
     R.master.mainloop()
