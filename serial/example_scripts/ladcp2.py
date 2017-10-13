@@ -5,12 +5,20 @@
 from __future__ import print_function
 from future import standard_library
 from os.path import expanduser
+from six.moves.tkinter import *
+from uhdas.serial.rditerm import terminal
+import os, sys
+import Pmw
+
+home = expanduser("~")
+logDir = home + '/data/ladp_terminal_logs'
+backupDir = home + '/backup'
+dataDir = home + '/data/ladcp_proc/raw_ladcp/cut'
 
 standard_library.install_hooks()
 font_size = 14                          # try 12, 14, 16, 18, 20
 
 cruiseName = 'AB1705'                   # Cruise name
-
 
 backup = 'rditerm_backup'               # 2nd copy (data and  and logs here)
 ## backup = ''                          # or set to empty string to disable
@@ -28,21 +36,22 @@ cmd_filename_master = 'ladcp_master.cmd'        # down-looker: command file
 
 ##### end of section to edit ###
 
-from six.moves.tkinter import *
-from uhdas.serial.rditerm import terminal
-import os, sys
-import Pmw
 
-home = expanduser("~")
-logDir = home + '/data/ladp_terminal_logs/'
+
+
+logDir = logDir + '/'
 directory = os.path.dirname(logDir)
 if not os.path.exists(directory):
     os.makedirs(directory)
     
-backup = home + '/backup/'
-directory = os.path.dirname(backup)
+backupDir = backupDir + '/'
+directory = os.path.dirname(backupDir)
 if not os.path.exists(directory):
-    os.makedirs(directory)    
+    os.makedirs(directory)
+dataDir =  dataDir + '/'  
+directory = os.path.dirname(dataDir)
+if not os.path.exists(directory):
+    os.makedirs(directory)         
 
 
 
@@ -57,7 +66,9 @@ R_slave = terminal(device = device_slave, master = root,
                prefix = '',
                suffix = 's',
                cruiseName = cruiseName,                
-               backup = backup,
+               backupDir = backupDir,
+               dataLoc = dataDir,
+               logLoc = logDir,
                cmd_filename = cmd_filename_slave)
 logfilename = 'rditerm_%s.log' % os.path.split(device_slave)[-1]
 logfilename = logDir + logfilename
@@ -71,7 +82,9 @@ R_master = terminal(device = device_master, master = root,
                prefix = '',
                suffix = 'm',
                cruiseName = cruiseName,               
-               backup = backup,
+               backupDir = backupDir,
+               dataLoc = dataDir,
+               logLoc = logDir,               
                cmd_filename = cmd_filename_master)
 logfilename = 'rditerm_%s.log' % os.path.split(device_master)[-1]
 logfilename = logDir + logfilename

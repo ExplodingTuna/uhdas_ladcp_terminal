@@ -13,29 +13,24 @@ from six.moves import tkinter_messagebox
 from six.moves.tkinter_tksimpledialog import askinteger, askstring
 import Pmw
 import sys, os, select, signal
-
-## create log and data directories
-home = expanduser("~")
-logDir = home + '/data/ladp_terminal_logs/'
-dataDir = home + '/data/ladp_proc/raw_ladcp/cut/'
-
-directory = os.path.dirname(logDir)
-if not os.path.exists(directory):
-    os.makedirs(directory)
-
-directory = os.path.dirname(dataDir)
-if not os.path.exists(directory):
-    os.makedirs(directory)    
-
 import logging, logging.handlers
 from uhdas.system import logutils
-L = logging.getLogger()
-L.setLevel(logging.DEBUG)
-formatter = logutils.formatterTLN
-handler = logging.FileHandler(logDir + "rditerm.log")
-handler.setLevel(logging.INFO)
-handler.setFormatter(formatter)
-L.addHandler(handler)
+
+## create log and data directories
+#home = expanduser("~")                                           
+#logDir = home + '/data/ladp_terminal_logs/'
+#dataDir = home + '/data/ladp_proc/raw_ladcp/cut/'
+
+#directory = os.path.dirname(logDir)
+#if not os.path.exists(directory):
+#    os.makedirs(directory)
+
+#directory = os.path.dirname(dataDir)
+#if not os.path.exists(directory):
+#    os.makedirs(directory)    
+
+
+
 
 from uhdas.serial.tk_terminal import Tk_terminal, Timeout
 
@@ -65,6 +60,11 @@ default_databauds = {'BB': 38400, 'WH':115200, 'Unrecognized': 9600}
 fmt = '%Y/%m/%d  %H:%M:%S'
 YM_retry = re.compile("Retry (\d+):")
 
+L = logging.getLogger()
+#global logDir
+#global dataDir
+
+
 def time_stamp():
     return time.strftime(fmt, time.gmtime())
 
@@ -78,7 +78,9 @@ class terminal(Tk_terminal):
                        prefix = 'rdi',
                        suffix = 'rdi',
                        cruiseName = 'rdi',
-                       backup = '',
+                       backupDir = '',
+                       dataLoc = './',
+                       logLoc = '',                       
                        stacast = '000_01',
                        datafile_ext = '.dat'):
         Tk_terminal.__init__(self,
@@ -93,9 +95,19 @@ class terminal(Tk_terminal):
         self.prefix = prefix
         self.suffix = suffix
         self.cruiseName = cruiseName
-        self.backup = backup
+        self.backupDir = backupDir
+        self.dataDir = dataLoc
+        self.logDir = logLoc
         self.stacastSV = StringVar()
         self.stacastSV.set(stacast)
+# setup logging
+        L.setLevel(logging.DEBUG)
+        formatter = logutils.formatterTLN
+        handler = logging.FileHandler(self.logDir + "rditerm.log")
+        handler.setLevel(logging.INFO)
+        handler.setFormatter(formatter)
+        L.addHandler(handler)        
+        
         if not datafile_ext.startswith('.'):
             datafile_ext = '.%s' % datafile_ext
         self.datafile_ext = datafile_ext
@@ -153,6 +165,7 @@ class terminal(Tk_terminal):
 
     def make_filename(self, ext):
         return "%s%s%s%s%s%s" % (self.prefix,self.cruiseName,'_',self.stacastSV.get(),self.suffix, ext)
+                
 
     def insert(self, msg):
         ''' Insert a comment as if it came from the instrument.
@@ -270,7 +283,7 @@ class terminal(Tk_terminal):
             self.streamwaitfor(b'>', timeout=timeout)
 
     @staticmethod
-    def _validated_commands(fname):
+    def _validated_commands(self,fname):
         '''
         Return commands from file with comments.
         Remove CK and CS, if present, because we add these later.
@@ -279,9 +292,10 @@ class terminal(Tk_terminal):
         lines = open(fname, 'r').readlines()
         cmds = []
         for line in lines:
+
             line = line.split('#',1)[0]
             line.strip()
-            
+           
             line = line.split(';',1)[0]
             line.strip()
             
@@ -299,7 +313,7 @@ class terminal(Tk_terminal):
         self.insert("Sending command file: %s" % (fn,))
 
         try:
-            cmds = self._validated_commands(fn)
+            cmds = self._validated_commands(self,fn)
             self.send_commands(cmds)
             self.stream.write(b'CK' + b'\r')
             self.stream.flush()
@@ -319,7 +333,7 @@ class terminal(Tk_terminal):
         L.info("Data collection started")
         self.insert("Data collection started, %s\n" % time_stamp())
         logfilename = self.make_filename(".log")
-        logfilename = logDir + '/' + logfilename
+        logfilename = self.logDir + logfilename
         self.append_to_file(logfilename)
         self.insert("Deployment logfile written to %s" % logfilename)
         self.stop_listening()
@@ -502,7 +516,7 @@ class terminal(Tk_terminal):
     def ymodem_download(self, filenum = None):
         # filenum is None for all files (WH only); otherwise file number
         #            directory selection; for now it is in current directory
-        self.ymdir = tempfile.mkdtemp(dir=dataDir)
+        self.ymdir = tempfile.mkdtemp(dir=self.dataDir)
         self.insert("Initial download directory: %s" % self.ymdir)
         dbaud = self.get_data_baud()
         self.change_all_baud(dbaud)
@@ -561,7 +575,7 @@ class terminal(Tk_terminal):
 
     def finish_download(self):
         logfilename = self.make_filename(".log")
-        logfilename = logDir + '/' + logfilename
+        logfilename = self.logDir + logfilename
         fn0 = self.find_filename()
         fn0 = os.path.join(self.ymdir, fn0)
         #fn0 = dataDir + '/' + fn0        
@@ -581,7 +595,7 @@ class terminal(Tk_terminal):
 
         self.insert("Downloaded file %s has %d bytes" % (fn0, nbytes))
 
-        fn = self.make_filename(self.datafile_ext)
+        fn = self.dataDir + self.make_filename(self.datafile_ext)
         fn1 = None
         while fn1 is None:
             fn1 = askstring('Rename', 'Rename %s to:' % fn0,
@@ -589,38 +603,38 @@ class terminal(Tk_terminal):
                     
             if fn1 is None:
                 break
-            fn1 = dataDir + fn1.strip()
             if os.path.exists(fn1):
                 tkinter_messagebox.showerror(message="File %s already exists" % fn1)
                 fn1 = None
         if fn1:
+            self.insert("File written as %s" % fn1)			
             os.rename(fn0, fn1)
-            self.insert("File written as %s" % fn1)
+
         else:
             fn1 = fn0
         os.chmod(fn1, 0o444) # Read-only.
-        if self.backup:
-            if not os.access(self.backup, os.W_OK):
+        if self.backupDir:
+            if not os.access(self.backupDir, os.W_OK):
                 try:
-                    os.mkdir(self.backup)
+                    os.mkdir(self.backupDir)
                 except Exception as exc:
                     msglines = [str(exc)]
                     msglines.append(
-                        "Could not make backup directory %s" % self.backup)
+                        "Could not make backup directory %s" % self.backupDir)
                     msglines.append(
                         "If it already exists, check its permissions")
                     for line in msglines:
                         self.insert(line)
                     tkinter_messagebox.showerror(message='\n'.join(msglines))
                     L.warning('\n'.join(msglines))
-                    self.backup = None
-        if self.backup:
+                    self.backupDir = None
+        if self.backupDir:
             try:
-                shutil.copy2(fn1, os.path.join(self.backup, fn1))
-                self.insert("File %s backed up to %s" % (fn1, self.backup))
+                shutil.copy2(fn1, self.backupDir + os.path.basename(fn1))
+                self.insert("File %s backed up to %s" % (os.path.basename(fn1), self.backupDir))
             except Exception as exc:
                 msglines = [str(exc)]
-                msglines.append("Backup to %s failed." % self.backup)
+                msglines.append("Backup to %s failed." % self.backupDir)
                 for line in msglines:
                     self.insert(line)
                 tkinter_messagebox.showerror(message='\n'.join(msglines))
@@ -751,10 +765,13 @@ def main():
                    baud = o.baud,
                    data_baud = o.data_baud,
                    prefix = o.prefix,
-                   backup = o.backup,
+                   backupDir = o.backupDir,
+                   dataDir = o.dataLoc,
+                   logDir = o.logLoc,
                    stacast = o.stacast,
                    datafile_ext = o.datafile_ext,
                    cmd_filename = o.cmd_filename)
+            
     logfilename = 'rditerm_%s.log' % os.path.split(o.device)[-1]
     logfilename = logDir + logfilename
     print("Saving terminal IO to %s." % logfilename)
