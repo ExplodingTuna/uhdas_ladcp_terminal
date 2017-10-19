@@ -77,7 +77,7 @@ class terminal(Tk_terminal):
                        cmd_filename = 'ladcp.cmd',
                        prefix = 'rdi',
                        suffix = 'rdi',
-                       cruiseName = 'rdi',
+                       cruiseName = 'XXNNNN',
                        backupDir = '',
                        dataLoc = './',
                        logLoc = '',                       
@@ -94,7 +94,8 @@ class terminal(Tk_terminal):
         self.cmd_filename = cmd_filename
         self.prefix = prefix
         self.suffix = suffix
-        self.cruiseName = cruiseName
+        self.cruiseName = StringVar()
+        self.cruiseName.set(cruiseName)
         self.backupDir = backupDir
         self.dataDir = dataLoc
         self.logDir = logLoc
@@ -117,6 +118,7 @@ class terminal(Tk_terminal):
                                             label_text = 'Prefix:')
         self.prefixline.pack(side = LEFT, anchor = W, padx = 10)
         Label(self.prefixline.interior(),
+              width = 3,
               relief = SUNKEN,
               text = self.prefix).pack()
               
@@ -125,6 +127,7 @@ class terminal(Tk_terminal):
                                             label_text = 'Suffix:')
         self.suffixline.pack(side = LEFT, anchor = W, padx = 10)
         Label(self.suffixline.interior(),
+              width = 3,
               relief = SUNKEN,
               text = self.suffix).pack()
               
@@ -132,11 +135,13 @@ class terminal(Tk_terminal):
                                             labelpos = 'w',
                                             label_text = 'Cruise:')
         self.cruiseNameLine.pack(side = LEFT, anchor = W, padx = 10)
-        Label(self.cruiseNameLine.interior(),
+        self.cruiseNameEntry = Entry(self.cruiseNameLine.interior(),
+              width = 10,
+              bg = 'white',
               relief = SUNKEN,
-              text = self.cruiseName).pack()
+              textvariable = self.cruiseName)
               
-                  
+        self.cruiseNameEntry.pack()
               
                   
               
@@ -164,7 +169,7 @@ class terminal(Tk_terminal):
         self.Loggers.check_stop_logging()
 
     def make_filename(self, ext):
-        return "%s%s%s%s%s%s" % (self.prefix,self.cruiseName,'_',self.stacastSV.get(),self.suffix, ext)
+        return "%s%s%s%s%s%s" % (self.prefix,self.cruiseName.get(),'_',self.stacastSV.get(),self.suffix, ext)
                 
 
     def insert(self, msg):
@@ -349,10 +354,28 @@ class terminal(Tk_terminal):
                        filetypes = (('Command', '*.cmd'), ('All', '*')),
                        parent = self.Frame,
                        title = 'Command file')
-        if fn == '': return
+        if not fn:
+			 
+			return
         self.cmd_filename = fn
         self.send_setup()
 
+
+
+    def no_ask_send_setup(self):
+        if os.path.exists(self.cmd_filename):
+            self.send_setup()
+            return
+        else:
+            initialfile=''
+            fn = tkinter_tkfiledialog.askopenfilename(initialfile = initialfile,
+                           initialdir = os.getcwd(),
+                           filetypes = (('Command', '*.cmd'), ('All', '*')),
+                           parent = self.Frame,
+                           title = 'Command file')
+        if not fn: return
+        self.cmd_filename = fn
+        self.send_setup()
 
 
     # This may not be useful; it is supposed to
@@ -716,6 +739,9 @@ class terminal(Tk_terminal):
         mb.addmenuitem('Deploy', 'command', '',
                        label = 'Send Setup and Start',
                        command = self.ask_send_setup)
+        mb.addmenuitem('Deploy', 'command', '',
+                       label = 'Send Setup and Start Without Asking',
+                       command = self.no_ask_send_setup)                       
         # There seems to be no point in making this a separate step.
         #mb.addmenuitem('Deploy', 'command', '',
         #               label = 'Disconnect',

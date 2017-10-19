@@ -18,7 +18,7 @@ dataDir = home + '/data/ladcp_proc/raw_ladcp/cut'
 standard_library.install_hooks()
 font_size = 14                          # try 12, 14, 16, 18, 20
 
-cruiseName = 'AB1705'                   # Cruise name
+cruiseName = 'XX####'                   # Cruise name
 
 backup = 'rditerm_backup'               # 2nd copy (data and  and logs here)
 ## backup = ''                          # or set to empty string to disable
@@ -94,7 +94,7 @@ R_master.begin_save(logfilename)
 R_slave.display.Text.configure(height = 20)
 R_master.display.Text.configure(height = 20)
 
-# Synchronize the stacast.  Both of the following are essential.
+# Synchronize the stacast label .  Both of the following are essential.
 R_master.stacastentry.configure(textvariable = R_slave.stacastSV)
 R_master.stacastSV = R_slave.stacastSV
 
@@ -102,6 +102,13 @@ R_slave.Frame.pack_forget()
 R_slave.Frame.pack(side = TOP, expand = YES, fill = BOTH)
 R_master.Frame.pack_forget()
 R_master.Frame.pack(side = TOP, expand = YES, fill = BOTH)
+
+# Synchronize the cruisename label
+R_master.cruiseNameEntry.configure(textvariable = R_slave.cruiseName)
+R_master.cruiseName = R_slave.cruiseName
+
+
+
 
 def shutdown():
     R_slave.close_terminal()
