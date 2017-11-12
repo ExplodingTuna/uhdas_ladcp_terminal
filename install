@@ -1,0 +1,77 @@
+#!/bin/bash
+# Init
+FILE="/tmp/out.$$"
+GREP="/bin/grep"
+#....
+# Make sure only root can run our script
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root" 1>&2
+   exit 1
+fi
+
+
+baseDir="AOML"
+appDir="uhdas_ladcp_deploy_recover"
+installDir="/usr/local/"$baseDir'/'$appDir
+localInstallDir=$HOME'/'$appDir
+desktopLauncherDir=$HOME"/.local/share/applications"
+desktopLauncher=$desktopLauncherDir'/ladcp_deploy_recover.desktop'
+
+# create directories if they don't  exist
+if [ ! -d "$installDir" ]; then
+    mkdir -p "$installDir"
+fi
+
+if [ ! -d "$localInstallDir" ]; then
+    su - $SUDO_USER -c "mkdir -p $localInstallDir"
+fi
+
+if [ ! -d $HOME'/'"data/cmd_files" ]; then
+    su - $SUDO_USER -c "mkdir -p $HOME/data/cmd_files"
+fi
+
+#create dekstop entry file
+
+
+su - $SUDO_USER -c "echo '[Desktop Entry]' >  $desktopLauncher"
+su - $SUDO_USER -c "echo 'Comment=UH LADCP Deployment/Recovery Application' >>  $desktopLauncher"
+su - $SUDO_USER -c "echo 'Terminal=false' >>  $desktopLauncher"
+su - $SUDO_USER -c "echo 'Name=UH LADCP Deployment/Recovery Application' >>  $desktopLauncher"
+su - $SUDO_USER -c "echo 'Exec=/usr/bin/python $installDir/ladcp2.py' >>  $desktopLauncher"
+su - $SUDO_USER -c "echo 'Type=Application' >>  $desktopLauncher"
+su - $SUDO_USER -c "echo 'Icon=$installDir/ladcp.png' >>  $desktopLauncher"
+su - $SUDO_USER -c "echo 'NoDisplay=false' >>  $desktopLauncher"
+su - $SUDO_USER -c "echo 'Categories=AOML' >>  $desktopLauncher"
+
+#create launch script
+
+#echo '#!/bin/bash' > $installDir'/'programs/uhdas/serial/example_scripts/ladcpStart
+#echo 'if [ ! -d $HOME/data/ladcp_raw ]; then' >> $installDir'/'programs/uhdas/serial/example_scripts/ladcpStart
+#echo '    mkdir -p $HOME/data/ladcp_raw' >> $installDir'/'programs/uhdas/serial/example_scripts/ladcpStart
+#echo 'fi' >> $installDir'/'programs/uhdas/serial/example_scripts/ladcpStart
+
+#echo 'cd $HOME/data/ladcp_raw' >> $installDir'/'programs/uhdas/serial/example_scripts/ladcpStart
+
+#echo "$installDir/programs/uhdas/serial/example_scripts/ladcp2.py" >> $installDir'/'programs/uhdas/serial/example_scripts/ladcpStart
+#chmod +x $installDir'/'programs/uhdas/serial/example_scripts/ladcpStart
+
+
+#copy files 
+cp dual_ladcp/ladcp2.py $installDir
+cp ladcp.png $installDir
+su - $SUDO_USER -c "cp -r $PWD/cmd_files/* $HOME/data/cmd_files" 
+#chmod +x $installDir'/'programs/uhdas/serial/example_scripts/ladcp2.py
+#ln -sf $installDir'/'programs/uhdas/serial/example_scripts/ladcpStart /sbin/ladcpStart
+#cp programs/uhdas/serial/example_scripts/ladcp.png $installDir/programs/uhdas/serial/example_scripts/ladcp.png
+
+#su - $SUDO_USER -c "cp $PWD/scripts/*.cmd $localInstallDir"
+
+
+# Creat AOML category
+if [ ! -f /etc/xdg/menus/applications-merged/aoml.menu ]; then
+    cp aoml.menu /etc/xdg/menus/applications-merged
+fi
+
+
+
+

@@ -11,7 +11,7 @@ import os, sys
 import Pmw
 
 home = expanduser("~")
-logDir = home + '/data/ladp_terminal_logs'
+logDir = home + '/data/ladcp_terminal_logs'
 backupDir = home + '/backup'
 dataDir = home + '/data/ladcp_proc/raw_ladcp/cut'
 
