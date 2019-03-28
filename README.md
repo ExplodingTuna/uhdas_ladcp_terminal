@@ -15,22 +15,20 @@ favoring by the Department of Commerce. The Department of Commerce seal and logo
 DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by
 DOC or the United States Government.
 
-# Installing on Ubunutu 16.04
+# Installing on Ubunutu 16.04 && 18.04
 
-
-install six</br>
-"sudo apt-get install python-six"</br>
-install future</br>
-"sudo apt-get install python-future"</br>
-install Tkinter</br>
-"sudo apt-get install python-tk"</br> 
-install pmw</br>
-"sudo apt-get install python-pmw"</br> 
-install numpy</br>
-"sudo apt-get install python-numpy"</br>
-install UHDAS package</br>
-python ./runsetup.py --sudo</br>
-
+Install requirements
+```bash
+sudo apt-get install python-six \
+python-future \
+python-tk \
+python-pmw \
+python-numpy
+```
+install UHDAS package
+```bash
+python ./runsetup.py --sudo
+```
 
 
 # Modifications to UHDAS installation to remove codas and pycurrents dependencies 
