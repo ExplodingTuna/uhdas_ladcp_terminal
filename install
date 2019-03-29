@@ -69,9 +69,8 @@ su - $SUDO_USER -c "cp -r $PWD/cmd_files/* $HOME/data/cmd_files"
 
 # Creat AOML category
 if [ ! -f /etc/xdg/menus/applications-merged/aoml.menu ]; then
+    mkdir -p /etc/xdg/menus/applications-merged
     cp aoml.menu /etc/xdg/menus/applications-merged
 fi
-
-
-
-
+su - $SUDO_USER -c "mkdir $HOME/data" 2>/dev/null
+su - $SUDO_USER -c "cp -R $PWD/cmd_files $HOME/data"
