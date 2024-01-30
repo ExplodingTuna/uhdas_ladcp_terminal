@@ -354,9 +354,7 @@ class terminal(Tk_terminal):
                        filetypes = (('Command', '*.cmd'), ('All', '*')),
                        parent = self.Frame,
                        title = 'Command file')
-        if not fn:
-			 
-			return
+        if not fn: return
         self.cmd_filename = fn
         self.send_setup()
 
