@@ -30,6 +30,12 @@ install UHDAS package
 python ./runsetup.py --sudo
 ```
 
+# Installing on Debian with python 3
+
+Install requirements 
+'''bash
+sudo apt-get install python3-six python3-future python3-tk python3-pmw python3-numpy
+'''
 
 # Modifications to UHDAS installation to remove codas and pycurrents dependencies 
 modify runsetup.py to remove all codas references</br>
