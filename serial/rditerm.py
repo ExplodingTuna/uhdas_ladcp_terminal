@@ -58,7 +58,7 @@ rdi_baud_codes = {300:0, 1200:1, 2400:2,
 default_databauds = {'BB': 38400, 'WH':115200, 'Unrecognized': 9600}
 
 fmt = '%Y/%m/%d  %H:%M:%S'
-YM_retry = re.compile("Retry (\d+):")
+YM_retry = re.compile(rb"Retry (\d+):")
 
 L = logging.getLogger()
 #global logDir
