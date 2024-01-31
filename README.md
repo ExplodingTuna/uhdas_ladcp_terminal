@@ -15,26 +15,21 @@ favoring by the Department of Commerce. The Department of Commerce seal and logo
 DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by
 DOC or the United States Government.
 
-# Installing on Ubunutu 16.04 && 18.04
-
-Install requirements
-```bash
-sudo apt-get install python-six \
-python-future \
-python-tk \
-python-pmw \
-python-numpy
-```
-install UHDAS package
-```bash
-python ./runsetup.py --sudo
-```
-
 # Installing on Debian with python 3
+Make sure user is part of the dialout group before beggining.
+
+```bash
+sudo usermod -a -G dialout $USER
+```
+Reboot.
 
 Install requirements 
 ```bash
 sudo apt-get install python3-six python3-future python3-tk python3-pmw python3-numpy
+sudo apt-get install lrzsz
+cd uhdas_ladcp_terminal/
+sudo -E ./install
+python3 ./runsetup.py install --sudo
 ```
 
 # Modifications to UHDAS installation to remove codas and pycurrents dependencies 
