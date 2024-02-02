@@ -15,15 +15,18 @@ favoring by the Department of Commerce. The Department of Commerce seal and logo
 DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by
 DOC or the United States Government.
 
-# Installing on Debian Bookworm with python 3
-Make sure user is part of the dialout group before beggining.
+# Installation
+This installation guide was tested with Debian Bookworm and python 3. This guide may not work with other Linux distributions or may need some adjustments.
+
+## Install requirements 
+Make sure user is part of the dialout group before beggining. 
 
 ```bash
 sudo usermod -a -G dialout $USER
 ```
-Reboot.
+Additionally, install python 3 and lrzsz. If you don't have these installed, the installation process covers this.
 
-## Install requirements 
+## Installing with Debian Bookworm
 ```bash
 sudo apt-get install python3-six python3-future python3-tk python3-pmw python3-numpy
 sudo apt-get install lrzsz
