@@ -15,7 +15,7 @@ favoring by the Department of Commerce. The Department of Commerce seal and logo
 DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by
 DOC or the United States Government.
 
-# Installing on Debian with python 3
+# Installing on Debian Bookworm with python 3
 Make sure user is part of the dialout group before beggining.
 
 ```bash
