@@ -1,5 +1,5 @@
-# uhdas_ladcp_terminal
-Modified version of UHDAS ladcp deployment/recovery terminal
+# uhdas_ladcp_terminal 
+![Screenshot_2024-02-02_12-14-13](https://github.com/ExplodingTuna/uhdas_ladcp_terminal/assets/146979376/89f1556b-a4f9-42a2-90c3-bf0fd6c7fd68)
 
 
 
@@ -23,7 +23,7 @@ sudo usermod -a -G dialout $USER
 ```
 Reboot.
 
-Install requirements 
+## Install requirements 
 ```bash
 sudo apt-get install python3-six python3-future python3-tk python3-pmw python3-numpy
 sudo apt-get install lrzsz
