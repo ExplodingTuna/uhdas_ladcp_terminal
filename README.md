@@ -51,7 +51,7 @@ python3 ./runsetup.py install --sudo
 
 
 ### Modifications to UHDAS installation to remove codas and pycurrents dependencies 
-These are the changes made to allow the program to run independantly.
+These are the changes made to allow the program to run independently.
 
 - Modified runsetup.py to remove all codas references
 - Modified setup.py and remove all pycurrents references
