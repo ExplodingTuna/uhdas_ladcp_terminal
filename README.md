@@ -55,7 +55,7 @@ These are the changes made to allow the program to run independantly.
 
 - Modified runsetup.py to remove all codas references
 - Modified setup.py and remove all pycurrents references
-- Copy logutils.py to uhdas/system folder
+- Copied logutils.py to uhdas/system folder
 - Modified rditerm.py
 - Changed pycurrents.system import logutils to uhdas.system import logutils
 - Modified method "_validated_commands" so that the send script can ignore lines starting with "$" or ";" to use unmodifed BBTALK scripts. This will allow BBTALK scripts to be read withput causing any errors.
