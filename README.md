@@ -10,8 +10,10 @@ favoring by the Department of Commerce. The Department of Commerce seal and logo
 DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by
 DOC or the United States Government.
 
-# uhdas_ladcp_terminal 
-![Screenshot_2024-02-02_12-14-13](https://github.com/ExplodingTuna/uhdas_ladcp_terminal/assets/146979376/89f1556b-a4f9-42a2-90c3-bf0fd6c7fd68)
+# UHDAS LADCP Terminal 
+
+This program was originally part of a suite of programs that form the [UHDAS + CODAS](https://currents.soest.hawaii.edu/uhdas_home/) processing and aquisition tools for ADCP's. We've extracted it and modified it for use on our oceanographic cruises that have lowered ADCP's installed.
+
 
 # Installation
 This installation guide was tested with Debian Bookworm and Ubuntu 22.04 using python 3. This guide may not work with other Linux distributions or may need some adjustments.
@@ -42,17 +44,24 @@ sudo -E ./install
 python3 ./runsetup.py install --sudo
 ```
 
-# Modifications to UHDAS installation to remove codas and pycurrents dependencies 
-modify runsetup.py to remove all codas references</br>
-modify setup.py and remove all pycurrents references</br>
-copy logutils.py to uhdas/system folder</br>
-edit rditerm.py</br>
-    change from pycurrents.system import logutils to from uhdas.system import logutils</br>
-    modify method "_validated_commands" so that the send script can ignore lines starting with "$" or ";".</br>
-    this will allow BBTALK scripts to be read withput causing any errors.</br>
-    add Prefix and Cruise Name lables.</br>
-    modify "make_filename" method to create a ladcp processing compatible filename</br>
-    modify "terminal" class to include suffix and cruiseName in the constructor</br>
+# Screenshots
+
+![Screenshot_2024-02-02_12-14-13](https://github.com/ExplodingTuna/uhdas_ladcp_terminal/assets/146979376/89f1556b-a4f9-42a2-90c3-bf0fd6c7fd68)
+
+
+
+### Modifications to UHDAS installation to remove codas and pycurrents dependencies 
+These are the changes made to allow the program to run independantly.
+
+- Modified runsetup.py to remove all codas references
+- Modified setup.py and remove all pycurrents references
+- Copy logutils.py to uhdas/system folder
+- Modified rditerm.py
+- Changed pycurrents.system import logutils to uhdas.system import logutils
+- Modified method "_validated_commands" so that the send script can ignore lines starting with "$" or ";" to use unmodifed BBTALK scripts. This will allow BBTALK scripts to be read withput causing any errors.
+- Added Prefix and Cruise Name lables.
+- Modified "make_filename" method to create a ladcp processing compatible filename
+- Modified "terminal" class to include suffix and cruiseName in the constructor
 
 
 
