@@ -14,7 +14,7 @@ DOC or the United States Government.
 ![Screenshot_2024-02-02_12-14-13](https://github.com/ExplodingTuna/uhdas_ladcp_terminal/assets/146979376/89f1556b-a4f9-42a2-90c3-bf0fd6c7fd68)
 
 # Installation
-This installation guide was tested with Debian Bookworm and python 3. This guide may not work with other Linux distributions or may need some adjustments.
+This installation guide was tested with Debian Bookworm and Ubuntu 22.04 using python 3. This guide may not work with other Linux distributions or may need some adjustments.
 
 ## Install requirements 
 Make sure user is part of the dialout group before beggining. 
@@ -22,11 +22,20 @@ Make sure user is part of the dialout group before beggining.
 ```bash
 sudo usermod -a -G dialout $USER
 ```
-Additionally, install python 3 and lrzsz. If you don't have these installed, the installation process covers this.
-
-## Installing with Debian Bookworm
+Additionally, install python 3 with some packages and lrzsz.
+## Debian Bookworm
 ```bash
 sudo apt-get install python3-six python3-future python3-tk python3-pmw python3-numpy
+```
+
+## Ubuntu 22.04
+```bash
+sudo apt-get install python3-six python3-future python3-tk python3-pip python3-numpy
+sudo pip3 install pmw
+```
+
+## Ubuntu 22.04 & Debian Bookworm
+```bash
 sudo apt-get install lrzsz
 cd uhdas_ladcp_terminal/
 sudo -E ./install
