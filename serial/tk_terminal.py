@@ -298,6 +298,8 @@ class Tk_terminal(serial_port):
         for ii in range(nloops):
             time.sleep(0.05)
             self.update(oneshot = True) ###
+            if isinstance(s ,str):
+                s = s.encode('utf-8')
             ind = self.buffer.rfind(s)
             if ind != -1:
                 buf = self.buffer[:ind+1]
