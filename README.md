@@ -19,11 +19,13 @@ This program was originally part of a suite of programs that form the [UHDAS + C
 This installation guide was tested with Debian Bookworm and Ubuntu 22.04 using python 3. This guide may not work with other Linux distributions or may need some adjustments.
 
 ## Install requirements 
-Make sure user is part of the dialout group before beggining. 
+In order to have access to serial ports under linux, the user account must be part of the dialout group.
+To add the user to the dialout group, issue the following command. 
 
 ```bash
 sudo usermod -a -G dialout $USER
 ```
+
 Additionally, install python 3 with some packages and lrzsz.
 ## Debian Bookworm
 ```bash
