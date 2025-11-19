@@ -3,6 +3,7 @@ package gov.noaa.uhdas.serial;
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
+import gnu.io.UnsupportedCommOperationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -93,10 +94,14 @@ public class SerialPortManager {
         if (serialPort == null) {
             return;
         }
-        serialPort.setSerialPortParams(newBaudRate,
-                serialPort.getDataBits(),
-                serialPort.getStopBits(),
-                serialPort.getParity());
+        try {
+            serialPort.setSerialPortParams(newBaudRate,
+                    serialPort.getDataBits(),
+                    serialPort.getStopBits(),
+                    serialPort.getParity());
+        } catch (UnsupportedCommOperationException ex) {
+            throw new IOException("Unable to set baud rate", ex);
+        }
     }
 
     public synchronized int getBaudRate() {

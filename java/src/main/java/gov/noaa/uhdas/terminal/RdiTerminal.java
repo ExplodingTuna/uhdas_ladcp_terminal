@@ -110,28 +110,28 @@ public class RdiTerminal extends SwingTerminal {
     @Override
     protected void addCustomMenus(JMenuBar menuBar) {
         JMenu commandMenu = new JMenu("Command");
-        commandMenu.add(menuItem("Wakeup", e -> wakeup()));
-        commandMenu.add(menuItem("ZZZZ (go to sleep)", e -> sleep()));
-        commandMenu.add(menuItem("Set Clock", e -> setClock()));
-        commandMenu.add(menuItem("Send Setup", e -> askSendSetup()));
-        commandMenu.add(menuItem("Show Config", e -> showConfig()));
-        commandMenu.add(menuItem("Run Diagnostics", e -> runDiagnostics()));
-        commandMenu.add(menuItem("Change to download Baud", e -> changeAllBaud(null)));
-        commandMenu.add(menuItem("Start Binary", e -> startBinary(null)));
-        commandMenu.add(menuItem("List Recorder Directory", e -> listRecorder()));
-        commandMenu.add(menuItem("Erase Recorder NOW", e -> eraseRecorder()));
+        commandMenu.add(menuItem("Wakeup", () -> wakeup()));
+        commandMenu.add(menuItem("ZZZZ (go to sleep)", () -> sleep()));
+        commandMenu.add(menuItem("Set Clock", () -> setClock()));
+        commandMenu.add(menuItem("Send Setup", () -> askSendSetup()));
+        commandMenu.add(menuItem("Show Config", () -> showConfig()));
+        commandMenu.add(menuItem("Run Diagnostics", () -> runDiagnostics()));
+        commandMenu.add(menuItem("Change to download Baud", () -> changeAllBaud(null)));
+        commandMenu.add(menuItem("Start Binary", () -> startBinary(null)));
+        commandMenu.add(menuItem("List Recorder Directory", () -> listRecorder()));
+        commandMenu.add(menuItem("Erase Recorder NOW", () -> eraseRecorder()));
         menuBar.add(commandMenu);
 
         JMenu deployMenu = new JMenu("Deploy");
-        deployMenu.add(menuItem("Deployment Initialization", e -> startDeployRecover()));
-        deployMenu.add(menuItem("Set Clock", e -> setClock()));
-        deployMenu.add(menuItem("Send Setup and Start", e -> askSendSetup()));
-        deployMenu.add(menuItem("Send Setup and Start Without Asking", e -> noAskSendSetup()));
+        deployMenu.add(menuItem("Deployment Initialization", () -> startDeployRecover()));
+        deployMenu.add(menuItem("Set Clock", () -> setClock()));
+        deployMenu.add(menuItem("Send Setup and Start", () -> askSendSetup()));
+        deployMenu.add(menuItem("Send Setup and Start Without Asking", () -> noAskSendSetup()));
         menuBar.add(deployMenu);
 
         JMenu recoverMenu = new JMenu("Recover");
-        recoverMenu.add(menuItem("Recovery Initialization", e -> startDeployRecover()));
-        recoverMenu.add(menuItem("Download", e -> download()));
+        recoverMenu.add(menuItem("Recovery Initialization", () -> startDeployRecover()));
+        recoverMenu.add(menuItem("Download", () -> download()));
         menuBar.add(recoverMenu);
     }
 
@@ -286,7 +286,7 @@ public class RdiTerminal extends SwingTerminal {
                 sendCommands(cmdlist, Duration.ofSeconds(2));
             }
             sendLine("CF11110");
-        } catch (IOException ex) {
+        } catch (IOException | TimeoutException ex) {
             LOGGER.log(Level.SEVERE, "Unable to start binary mode", ex);
             showError("Unable to start binary mode: " + ex.getMessage());
         }
