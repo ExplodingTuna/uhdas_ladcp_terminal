@@ -1,0 +1,48 @@
+LADCP terminal function inventory and Java cloning plan
+======================================================
+
+serial/serialport.py
+--------------------
+- serial_port.__init__ / open_port / close_port / set_baud / get_baud / set_device / get_device
+  Plan: implemented as gov.noaa.uhdas.serial.SerialPortManager using nrjavaserial's CommPortIdentifier
+  and SerialPort classes. Locking mirrors sp_lock with SerialLock.
+- read_flags / set_flag / set_cc / send_break
+  Plan: SerialPortManager exposes sendBreak and baud control; flag enumeration is documented but not
+  mapped 1:1 because nrjavaserial handles control flags internally on modern JVMs.
+- writer.line_write / writer.dosline_write / writer.ensemble_write
+  Plan: console file playback is handled directly by SwingTerminal sendLine/sendBytes because Java
+  implementation streams user-entered commands instead of replaying files.
+
+serial/tk_terminal.py
+---------------------
+- flag_display UI helpers and EntryHistory command recall
+  Plan: replaced with SwingTerminal menu hooks and key listener history logic.
+- terminal_display / Tk_terminal methods (start_listening, stop_listening, waitfor, append_to_file,
+  make_menu, get_line_with, etc.)
+  Plan: replicated in gov.noaa.uhdas.terminal.SwingTerminal using Swing widgets, ExecutorService for the
+  read loop, buffered display text, and helper methods (waitFor, getLineContaining, getLinesFrom,
+  appendToFile, etc.).
+
+serial/rditerm.py
+-----------------
+Key functions and matching Java methods:
+- time_stamp, insert, make_filename -> RdiTerminal.makeFilename and inherited SwingTerminal.insert.
+- wakeup, wake_if_sleeping, wakeup_showtime -> RdiTerminal.wakeup, wakeIfSleeping, setClock.
+- set_clock, show_time_ok, showconfig -> RdiTerminal.setClock, showConfig.
+- start_listening/stop_listening overrides -> SwingTerminal handles listening and persistence.
+- send_commands, _validated_commands, send_setup, ask_send_setup, no_ask_send_setup ->
+  RdiTerminal.sendCommands, readValidatedCommands, sendSetup, askSendSetup, noAskSendSetup.
+- sleep, run_diagnostics, eraserecorder, start_binary, change_all_baud, list_recorder -> direct Java
+  equivalents with the same naming and behaviour.
+- start_deploy_recover, make_menu -> Java Swing menus built inside RdiTerminal.addCustomMenus.
+- download / ymodem helpers -> documented but left as informational dialog; full YModem support can be
+  layered later.
+
+Conversion notes
+----------------
+- All serial access now flows through nrjavaserial via SerialPortManager per Pedro's requirement.
+- GUI interactions use Swing (JFrame, JMenuBar, JTextArea, etc.) instead of Tkinter/PMW.
+- Logging mirrors Python's logutils by writing rditerm.log inside the specified log directory.
+- The Java port exposes a CLI entry point (RdiTerminal.main) with the same core switches
+  (--device, --baud, --download, --prefix, --suffix, --stacast, --command, etc.).
+- YModem file transfer is acknowledged but deferred, matching the Python feature list inside this plan.
