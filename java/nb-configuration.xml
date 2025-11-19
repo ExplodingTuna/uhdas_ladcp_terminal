@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-shared-configuration xmlns="http://www.netbeans.org/ns/maven-config/1">
+    <properties>
+        <netbeans.hint.run.mainClass>gov.noaa.uhdas.terminal.RdiTerminal</netbeans.hint.run.mainClass>
+        <netbeans.hint.jdkPlatform>JDK_11</netbeans.hint.jdkPlatform>
+    </properties>
+</project-shared-configuration>
